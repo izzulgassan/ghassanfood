@@ -1,1 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodKu — Pesan Makanan</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --green:#00a86b;--green2:#08c477;--dark:#17221d;--muted:#718078;
+  --bg:#f6f8f7;--card:#fff;--line:#e7ece9;--orange:#ff8a00;--red:#ef4444;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--dark)}
+button,input,select{font:inherit}button{cursor:pointer;border:0}
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav{max-width:1180px;margin:auto;height:70px;display:flex;align-items:center;gap:22px;padding:0 20px}
+.logo{font-weight:900;font-size:25px;color:var(--green);display:flex;align-items:center;gap:8px}.logo span{font-size:27px}
+.search{flex:1;max-width:560px;position:relative}.search input{width:100%;padding:13px 18px 13px 44px;border:1px solid var(--line);border-radius:15px;outline:none;background:#f7f9f8}.search input:focus{border-color:var(--green)}
+.search b{position:absolute;left:16px;top:11px;font-size:20px;color:#84918b}.cartBtn{background:#ecfaf4;color:var(--green);padding:11px 15px;border-radius:13px;font-weight:800;position:relative}.badge{position:absolute;right:-6px;top:-7px;background:var(--red);color:white;border-radius:99px;font-size:11px;padding:3px 6px;min-width:18px}
+.hero{max-width:1180px;margin:25px auto 10px;padding:0 20px}.heroBox{border-radius:25px;padding:35px;min-height:230px;background:linear-gradient(120deg,#dff9ec,#f7fff9 60%,#fff1d9);display:flex;align-items:center;justify-content:space-between;overflow:hidden}.heroText{max-width:650px}.hero h1{font-size:42px;line-height:1.05;margin:0 0 13px}.hero p{color:var(--muted);font-size:16px}.heroEmoji{font-size:130px;filter:drop-shadow(0 15px 15px #0001);transform:rotate(-5deg)}
+.categories{max-width:1180px;margin:20px auto;padding:0 20px;display:flex;gap:10px;overflow:auto}.cat{background:white;border:1px solid var(--line);padding:10px 17px;border-radius:99px;white-space:nowrap}.cat.active{background:var(--green);color:white;border-color:var(--green)}
+main{max-width:1180px;margin:auto;padding:0 20px 80px}.sectionTitle{display:flex;justify-content:space-between;align-items:end;margin:25px 0 15px}.sectionTitle h2{margin:0;font-size:25px}.count{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:17px}.food{background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:.2s;box-shadow:0 5px 18px #17221d08}.food:hover{transform:translateY(-3px);box-shadow:0 12px 28px #17221d12}.foodImg{height:155px;background:#edf3ef;position:relative;overflow:hidden}.foodImg img{width:100%;height:100%;object-fit:cover;display:block}.foodBody{padding:14px}.food h3{margin:0 0 5px;font-size:17px}.desc{font-size:12px;color:var(--muted);height:32px}.price{font-weight:900;color:var(--green);margin:9px 0}.add{width:100%;padding:10px;border-radius:11px;background:var(--green);color:white;font-weight:800}.add:hover{background:#008e5b}
+.overlay{display:none;position:fixed;inset:0;background:#0b161080;z-index:50;align-items:flex-end;justify-content:center}.overlay.show{display:flex}.panel{background:white;width:min(680px,100%);max-height:92vh;border-radius:25px 25px 0 0;overflow:auto;padding:23px;animation:up .25s}.panel.large{width:min(760px,100%)}@keyframes up{from{transform:translateY(50px);opacity:0}to{transform:none;opacity:1}}
+.panelHead{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:15px}.close{background:#f0f3f1;width:36px;height:36px;border-radius:50%;font-size:20px}.empty{text-align:center;padding:45px 10px;color:var(--muted)}
+.item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.item img{width:64px;height:64px;object-fit:cover;border-radius:12px}.itemInfo{flex:1}.itemInfo strong{display:block}.itemInfo small{color:var(--muted)}.qty{display:flex;align-items:center;gap:8px}.qty button{width:29px;height:29px;border-radius:9px;background:#edf7f2;color:var(--green);font-weight:900}.total{display:flex;justify-content:space-between;font-size:20px;font-weight:900;padding:18px 0}.primary{width:100%;padding:14px;border-radius:13px;background:var(--green);color:white;font-weight:900}.secondary{width:100%;padding:12px;border-radius:13px;background:#eef2ef;font-weight:800;margin-top:9px}
+.form{display:grid;gap:12px}.form label{font-size:13px;font-weight:800}.form input,.form select,.form textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;outline:none;background:white}.form textarea{resize:vertical}.radioRow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{border:1px solid var(--line);border-radius:13px;padding:13px;cursor:pointer}.choice.selected{border:2px solid var(--green);background:#f0fcf6}.choice input{width:auto;margin-right:8px}.payment{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.pay{padding:13px;border:1px solid var(--line);border-radius:12px;text-align:center}.pay.selected{border:2px solid var(--green);background:#effbf5}.pay small{display:block;color:var(--muted);margin-top:4px}
+.receipt{background:#fff;border:1px dashed #bcc8c1;border-radius:16px;padding:20px}.receiptTop{text-align:center;border-bottom:1px dashed #ccd5d0;padding-bottom:17px}.receiptTop h2{color:var(--green);margin:0}.orderNo{font-weight:900;font-size:23px;margin:7px}.receiptRows{margin:16px 0}.rrow{display:flex;justify-content:space-between;gap:15px;padding:7px 0;font-size:14px}.rrow span:first-child{color:var(--muted)}.receiptItems{border-top:1px dashed #ccd5d0;border-bottom:1px dashed #ccd5d0;padding:10px 0}.qr{display:flex;justify-content:center;margin:18px}.status{display:inline-block;padding:7px 11px;background:#fff4df;color:#a75d00;border-radius:99px;font-size:12px;font-weight:800}
+.floatWA{position:fixed;right:22px;bottom:22px;z-index:30;width:57px;height:57px;border-radius:50%;background:#25d366;color:white;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 25px #0003}.waHint{position:fixed;right:26px;bottom:86px;background:#17221d;color:white;padding:8px 12px;border-radius:10px;font-size:12px;z-index:29;display:none}.floatWA:hover+.waHint{display:block}
+.note{background:#f5faf7;border:1px solid #dcece3;padding:12px;border-radius:12px;color:#52645b;font-size:13px}
+.footer{text-align:center;color:#819087;padding:25px;border-top:1px solid var(--line);font-size:13px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(3,1fr)}.hero h1{font-size:34px}.heroEmoji{font-size:90px}}
+@media(max-width:650px){.nav{gap:9px}.logo{font-size:21px}.search{display:none}.grid{grid-template-columns:repeat(2,1fr);gap:11px}.foodImg{height:125px}.heroBox{padding:25px}.heroEmoji{font-size:65px}.payment{grid-template-columns:1fr}.hero h1{font-size:29px}.categories{padding-bottom:2px}}
+</style>
+</head>
+<body>
 
+<header class="top">
+<nav class="nav">
+  <div class="logo"><span>🍽️</span> FoodKu</div>
+  <div class="search"><b>⌕</b><input id="search" placeholder="Cari makanan favoritmu..."></div>
+  <button class="cartBtn" onclick="openCart()">🛒 Keranjang <i class="badge" id="badge">0</i></button>
+</nav>
+</header>
+
+<section class="hero">
+  <div class="heroBox">
+    <div class="heroText">
+      <div class="status">🔥 Pesan sekarang</div>
+      <h1>Makanan enak,<br><span style="color:var(--green)">tinggal klik!</span></h1>
+      <p>Pilih menu favoritmu, tentukan metode pembayaran, lalu dapatkan resi digital dengan QR Code.</p>
+    </div>
+    <div class="heroEmoji">🍔</div>
+  </div>
+</section>
+
+<div class="categories" id="categories"></div>
+
+<main>
+  <div class="sectionTitle"><h2>Menu favorit</h2><div class="count" id="count"></div></div>
+  <div class="grid" id="menu"></div>
+</main>
+<footer class="footer">© 2026 FoodKu • Demo pemesanan makanan</footer>
+
+<button class="floatWA" onclick="openWA()">◉</button><div class="waHint">Chat admin</div>
+
+<!-- CART -->
+<div class="overlay" id="cartModal" onclick="outside(event,'cartModal')">
+ <div class="panel">
+  <div class="panelHead"><h2>🛒 Keranjang</h2><button class="close" onclick="closeModal('cartModal')">×</button></div>
+  <div id="cartList"></div>
+  <div id="cartBottom"></div>
+ </div>
+</div>
+
+<!-- CHECKOUT -->
+<div class="overlay" id="checkoutModal" onclick="outside(event,'checkoutModal')">
+ <div class="panel">
+  <div class="panelHead"><h2>🧾 Checkout</h2><button class="close" onclick="closeModal('checkoutModal')">×</button></div>
+  <div style="height:14px"></div>
+  <div class="form">
+   <div><label>Nama pemesan</label><input id="name" placeholder="Contoh: Ahmad"></div>
+   <div><label>Nomor WhatsApp</label><input id="phone" type="tel" placeholder="08xxxxxxxxxx"></div>
+   <div><label>Pesanan</label><div class="radioRow">
+    <div class="choice selected" id="dineIn" onclick="setOrderType('dinein')"><input type="radio" checked> 🍽️ Makan di tempat</div>
+    <div class="choice" id="takeaway" onclick="setOrderType('takeaway')"><input type="radio"> 🥡 Dibawa pulang</div>
+   </div></div>
+   <div id="tableWrap"><label>Nomor meja</label><select id="table"></select></div>
+   <div><label>Metode pembayaran</label><div class="payment">
+    <div class="pay selected" id="cash" onclick="setPayment('Tunai')">💵 Tunai<small>Bayar di kasir</small></div>
+    <div class="pay" id="bank" onclick="setPayment('Transfer Bank')">🏦 Transfer Bank<small>Bank pilihan</small></div>
+    <div class="pay" id="ewallet" onclick="setPayment('E-Wallet')">📱 E-Wallet<small>QR / e-wallet</small></div>
+   </div></div>
+   <div id="paymentInfo"></div>
+   <div><label>Catatan (opsional)</label><textarea id="notes" rows="2" placeholder="Contoh: tidak pedas, saus dipisah..."></textarea></div>
+   <div class="note">Setelah menekan <b>Buat Pesanan</b>, resi akan dibuat dan WhatsApp akan dibuka dengan detail pesanan untuk admin.</div>
+   <button class="primary" onclick="placeOrder()">Buat Pesanan & Kirim ke Admin</button>
+  </div>
+ </div>
+</div>
+
+<!-- RECEIPT -->
+<div class="overlay" id="receiptModal" onclick="outside(event,'receiptModal')">
+ <div class="panel large">
+  <div class="panelHead"><h2>✅ Pesanan Berhasil</h2><button class="close" onclick="closeModal('receiptModal')">×</button></div>
+  <div style="height:15px"></div>
+  <div id="receipt"></div>
+  <button class="primary" onclick="printReceipt()">🖨️ Cetak / Simpan Resi</button>
+  <button class="secondary" onclick="sendOrderWA()">📲 Kirim ulang ke WhatsApp Admin</button>
+ </div>
+</div>
+
+<!-- WA -->
+<div class="overlay" id="waModal" onclick="outside(event,'waModal')">
+ <div class="panel">
+  <div class="panelHead"><h2>💬 Chat Admin</h2><button class="close" onclick="closeModal('waModal')">×</button></div>
+  <p style="color:var(--muted)">Tulis pesan terlebih dahulu. Setelah itu WhatsApp akan terbuka.</p>
+  <textarea id="waMessage" rows="5" style="width:100%;padding:13px;border:1px solid var(--line);border-radius:12px" placeholder="Halo admin, saya ingin bertanya tentang..."></textarea>
+  <div style="height:12px"></div>
+  <button class="primary" onclick="sendWA()">Buka WhatsApp</button>
+ </div>
+</div>
+
+<script>
+/* =========================
+   PENGATURAN TOKO
+   GANTI NOMOR ADMIN DI SINI
+   ========================= */
+const ADMIN_WA = "6281234567890"; // contoh: 628xxxxxxxxxx
+
+const foods = [
+ {id:1,name:"Nasi Goreng Spesial",cat:"Makanan",price:18000,img:"https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=700&q=80",desc:"Nasi goreng gurih dengan telur dan ayam."},
+ {id:2,name:"Mie Goreng Jawa",cat:"Makanan",price:16000,img:"https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=700&q=80",desc:"Mie goreng dengan bumbu khas Jawa."},
+ {id:3,name:"Ayam Geprek",cat:"Makanan",price:20000,img:"https://images.unsplash.com/photo-1606756790138-261d2b21cd75?auto=format&fit=crop&w=700&q=80",desc:"Ayam crispy dengan sambal geprek."},
+ {id:4,name:"Sate Ayam",cat:"Makanan",price:22000,img:"https://images.unsplash.com/photo-1529563021893-cc83c992d75d?auto=format&fit=crop&w=700&q=80",desc:"Sate ayam empuk dengan saus kacang."},
+ {id:5,name:"Burger Beef",cat:"Fast Food",price:25000,img:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=700&q=80",desc:"Burger beef juicy dengan sayuran segar."},
+ {id:6,name:"Kentang Goreng",cat:"Fast Food",price:14000,img:"https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=700&q=80",desc:"Kentang renyah, cocok untuk teman makan."},
+ {id:7,name:"Es Teh Manis",cat:"Minuman",price:6000,img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=700&q=80",desc:"Teh manis dingin dan menyegarkan."},
+ {id:8,name:"Jus Alpukat",cat:"Minuman",price:12000,img:"https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=700&q=80",desc:"Jus alpukat creamy dan segar."},
+ {id:9,name:"Es Jeruk",cat:"Minuman",price:8000,img:"https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=700&q=80",desc:"Perasan jeruk segar dengan es."},
+ {id:10,name:"Pisang Cokelat",cat:"Snack",price:10000,img:"https://images.unsplash.com/photo-1621303837174-89787a7d4729?auto=format&fit=crop&w=700&q=80",desc:"Pisang crispy dengan cokelat manis."},
+ {id:11,name:"Roti Bakar",cat:"Snack",price:12000,img:"https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=700&q=80",desc:"Roti bakar hangat dengan topping pilihan."},
+ {id:12,name:"Dimsum",cat:"Snack",price:15000,img:"https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=700&q=80",desc:"Dimsum lembut dengan saus spesial."}
+];
+
+let cart = JSON.parse(localStorage.getItem("foodku_cart")||"[]");
+let category="Semua", orderType="dinein", payment="Tunai", lastOrder=null;
+
+function rupiah(n){return new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n)}
+function save(){localStorage.setItem("foodku_cart",JSON.stringify(cart));updateBadge()}
+function updateBadge(){document.getElementById("badge").textContent=cart.reduce((a,b)=>a+b.qty,0)}
+function renderCategories(){
+ const cats=["Semua",...new Set(foods.map(f=>f.cat))];
+ document.getElementById("categories").innerHTML=cats.map(c=>`<button class="cat ${c===category?"active":""}" onclick="setCat('${c}')">${c==="Semua"?"✨ Semua":c}</button>`).join("");
+}
+function setCat(c){category=c;renderCategories();renderMenu()}
+function renderMenu(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const list=foods.filter(f=>(category==="Semua"||f.cat===category)&&(f.name+" "+f.desc).toLowerCase().includes(q));
+ document.getElementById("count").textContent=list.length+" menu";
+ document.getElementById("menu").innerHTML=list.map(f=>`
+ <article class="food">
+  <div class="foodImg"><img src="${f.img}" alt="${f.name}" loading="lazy" onerror="this.style.display='none'"></div>
+  <div class="foodBody"><h3>${f.name}</h3><div class="desc">${f.desc}</div><div class="price">${rupiah(f.price)}</div><button class="add" onclick="add(${f.id})">+ Tambah</button></div>
+ </article>`).join("");
+}
+function add(id){const x=cart.find(i=>i.id===id);x?x.qty++:cart.push({id,qty:1});save();toast("Ditambahkan ke keranjang ✓")}
+function total(){return cart.reduce((s,i)=>s+foods.find(f=>f.id===i.id).price*i.qty,0)}
+function openCart(){renderCart();document.getElementById("cartModal").classList.add("show")}
+function renderCart(){
+ const el=document.getElementById("cartList"), bot=document.getElementById("cartBottom");
+ if(!cart.length){el.innerHTML='<div class="empty">🛒<br><br>Keranjang masih kosong.<br>Pilih makanan untuk mulai memesan.</div>';bot.innerHTML="";return}
+ el.innerHTML=cart.map(i=>{let f=foods.find(x=>x.id===i.id);return `<div class="item"><img src="${f.img}"><div class="itemInfo"><strong>${f.name}</strong><small>${rupiah(f.price)}</small></div><div class="qty"><button onclick="change(${i.id},-1)">−</button><b>${i.qty}</b><button onclick="change(${i.id},1)">+</button></div></div>`}).join("");
+ bot.innerHTML=`<div class="total"><span>Total</span><span>${rupiah(total())}</span></div><button class="primary" onclick="openCheckout()">Lanjut Checkout →</button>`;
+}
+function change(id,n){let x=cart.find(i=>i.id===id);x.qty+=n;if(x.qty<=0)cart=cart.filter(i=>i.id!==id);save();renderCart()}
+function openCheckout(){
+ if(!cart.length)return;
+ closeModal("cartModal");document.getElementById("checkoutModal").classList.add("show");
+}
+function setOrderType(t){
+ orderType=t;document.getElementById("dineIn").classList.toggle("selected",t==="dinein");document.getElementById("takeaway").classList.toggle("selected",t==="takeaway");document.getElementById("tableWrap").style.display=t==="dinein"?"block":"none";
+}
+function setPayment(p){
+ payment=p;["cash","bank","ewallet"].forEach(x=>document.getElementById(x).classList.remove("selected"));
+ document.getElementById(p==="Tunai"?"cash":p==="Transfer Bank"?"bank":"ewallet").classList.add("selected");
+ const info=document.getElementById("paymentInfo");
+ info.innerHTML=p==="Transfer Bank"?`<div class="note"><b>Transfer Bank</b><br>Bank BCA — 1234567890<br>a.n. FoodKu</div>`:p==="E-Wallet"?`<div class="note"><b>E-Wallet</b><br>QRIS / GoPay / DANA / OVO<br>Pembayaran dikonfirmasi setelah transfer.</div>`:"";
+}
+function makeTables(){document.getElementById("table").innerHTML=Array.from({length:20},(_,i)=>`<option>Meja ${i+1}</option>`).join("")}
+function makeOrderNo(){return "FK-"+new Date().toISOString().slice(0,10).replaceAll("-","")+"-"+Math.floor(1000+Math.random()*9000)}
+function placeOrder(){
+ const name=document.getElementById("name").value.trim(), phone=document.getElementById("phone").value.trim();
+ if(!name||!phone){alert("Nama dan nomor WhatsApp wajib diisi.");return}
+ const order={no:makeOrderNo(),name,phone,type:orderType==="dinein"?"Makan di tempat":"Dibawa pulang",table:orderType==="dinein"?document.getElementById("table").value:"-",payment,notes:document.getElementById("notes").value.trim(),items:cart.map(i=>({id:i.id,qty:i.qty})),total:total(),time:new Date().toLocaleString("id-ID")};
+ lastOrder=order;localStorage.setItem("foodku_last_order",JSON.stringify(order));renderReceipt(order);
+ cart=[];save();closeModal("checkoutModal");document.getElementById("receiptModal").classList.add("show");
+ setTimeout(sendOrderWA,500);
+}
+function renderReceipt(o){
+ document.getElementById("receipt").innerHTML=`<div class="receipt" id="printArea">
+ <div class="receiptTop"><h2>FOODKU</h2><div class="orderNo">${o.no}</div><span class="status">Menunggu konfirmasi</span></div>
+ <div class="receiptRows">
+  <div class="rrow"><span>Nama</span><b>${esc(o.name)}</b></div><div class="rrow"><span>WhatsApp</span><b>${esc(o.phone)}</b></div>
+  <div class="rrow"><span>Pesanan</span><b>${o.type}</b></div>${o.table!=="-"?`<div class="rrow"><span>Nomor meja</span><b>🪑 ${o.table}</b></div>`:""}
+  <div class="rrow"><span>Pembayaran</span><b>${o.payment}</b></div><div class="rrow"><span>Waktu</span><b>${o.time}</b></div>
+ </div>
+ <div class="receiptItems">${o.items.map(i=>{let f=foods.find(x=>x.id===i.id);return `<div class="rrow"><span>${f.name} × ${i.qty}</span><b>${rupiah(f.price*i.qty)}</b></div>`}).join("")}</div>
+ <div class="total"><span>Total</span><span>${rupiah(o.total)}</span></div>
+ ${o.notes?`<div class="note"><b>Catatan:</b> ${esc(o.notes)}</div>`:""}
+ <div class="qr" id="qrcode"></div><div style="text-align:center;color:var(--muted);font-size:12px">Scan QR untuk melihat nomor pesanan</div>
+ </div>`;
+ new QRCode(document.getElementById("qrcode"),{text:`FOODKU|${o.no}|${o.name}|${o.total}`,width:150,height:150,colorDark:"#17221d",colorLight:"#ffffff"});
+}
+function orderText(o){
+ let lines=o.items.map(i=>{let f=foods.find(x=>x.id===i.id);return `• ${f.name} x${i.qty} = ${rupiah(f.price*i.qty)}`}).join("\n");
+ return `*PESANAN BARU FOODKU*\n\nNo. Pesanan: ${o.no}\nNama: ${o.name}\nNo. WA: ${o.phone}\nPesanan: ${o.type}\n${o.table!=="-"?"Nomor meja: "+o.table+"\n":""}Pembayaran: ${o.payment}\n\n${lines}\n\n*TOTAL: ${rupiah(o.total)}*${o.notes?"\nCatatan: "+o.notes:""}`;
+}
+function sendOrderWA(){if(lastOrder)window.open("https://wa.me/"+ADMIN_WA+"?text="+encodeURIComponent(orderText(lastOrder)),"_blank")}
+function openWA(){document.getElementById("waModal").classList.add("show");document.getElementById("waMessage").focus()}
+function sendWA(){let m=document.getElementById("waMessage").value.trim();if(!m){alert("Silakan tulis pesan terlebih dahulu.");return}window.open("https://wa.me/"+ADMIN_WA+"?text="+encodeURIComponent(m),"_blank");closeModal("waModal")}
+function closeModal(id){document.getElementById(id).classList.remove("show")}
+function outside(e,id){if(e.target.id===id)closeModal(id)}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function toast(t){let x=document.createElement("div");x.textContent=t;x.style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#17221d;color:white;padding:11px 17px;border-radius:12px;z-index:100;font-size:13px";document.body.appendChild(x);setTimeout(()=>x.remove(),1800)}
+function printReceipt(){
+ const content=document.getElementById("printArea").outerHTML;
+ const w=window.open("","_blank","width=700,height=800");
+ w.document.write(`<html><head><title>Resi FoodKu</title><style>body{font-family:Arial;padding:25px}.receipt{max-width:600px;margin:auto;border:1px dashed #aaa;border-radius:12px;padding:20px}.receiptTop{text-align:center}.receiptTop h2{color:#00a86b}.rrow{display:flex;justify-content:space-between;padding:7px 0}.total{display:flex;justify-content:space-between;font-size:20px;font-weight:bold;padding:15px 0}.qr{text-align:center;margin:20px}.note{padding:10px;background:#f4f7f5}</style></head><body>${content}</body></html>`);w.document.close();setTimeout(()=>w.print(),400)
+}
+document.getElementById("search").addEventListener("input",renderMenu);
+makeTables();renderCategories();renderMenu();updateBadge();
+</script>
+</body>
+</html>
